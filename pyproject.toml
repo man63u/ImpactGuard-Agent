@@ -7,8 +7,8 @@ name = "impactguard-slicer"
 version = "0.1.0"
 requires-python = ">=3.10"
 dependencies = [
-    "tree-sitter>=0.20,<1.0",
-    "tree-sitter-python>=0.20,<1.0",
+    "tree-sitter>=0.22,<1.0",
+    "tree-sitter-python>=0.22,<1.0",
 ]
 
 [tool.pytest.ini_options]
