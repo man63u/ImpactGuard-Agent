@@ -1,9 +1,8 @@
 from pathlib import Path
-import pytest
 from multilspy import SyncLanguageServer
 from multilspy.multilspy_config import MultilspyConfig
 from multilspy.multilspy_logger import MultilspyLogger
-from slicer2.call_graph import build_call_graph_context, build_call_index, uri_to_relpath
+from slicer2.call_graph import build_call_graph_context, build_call_index, run_module2, uri_to_relpath
 from slicer.extractor import extract_function_inventory
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -118,3 +117,21 @@ def test_fan_in_uses_filtered_count_not_raw_refs(tmp_path, monkeypatch):
     assert verdict == "full", (
         f"target has 1 real caller (fan_in=1 <= threshold=1), expected 'full', got {verdict!r}"
     )
+
+
+def test_flask_decorator_callee_out_of_repo_root_skipped(tmp_path, monkeypatch):
+    """health_check is decorated with @app.route(...), which is a call node inside its
+    byte_range. That call's definition resolves to Flask's source in site-packages —
+    outside repo_root. BFS must not crash and must not include any out-of-repo path in visited.
+    """
+    import slicer.cache as cache_mod
+    monkeypatch.setattr(cache_mod, "CACHE_DIR", tmp_path / ".cache")
+
+    repo = FIXTURES / "fixture_b"
+    visited = run_module2(repo, [{"file": "app.py", "key": "health_check"}])
+
+    assert ("app.py", "health_check") in visited
+    for file, _key in visited:
+        assert (repo / file).exists(), (
+            f"visited contains an out-of-repo path: {file!r}"
+        )

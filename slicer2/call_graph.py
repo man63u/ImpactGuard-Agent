@@ -17,11 +17,18 @@ _parser = Parser()
 _parser.set_language(_PY_LANGUAGE)
 
 
-def uri_to_relpath(uri: str, repo_root: Path) -> str:
-    """Convert a file:// URI to a path relative to repo_root, forward-slash separated."""
+def uri_to_relpath(uri: str, repo_root: Path) -> str | None:
+    """Convert a file:// URI to a repo-root-relative path (forward slashes).
+
+    Returns None if the path is outside repo_root (e.g. stdlib or third-party packages).
+    Callers use `if x is None: continue` — no try/except needed.
+    """
     parsed = urllib.parse.urlparse(uri)
     abs_path = Path(url2pathname(parsed.path))
-    return str(abs_path.relative_to(repo_root)).replace("\\", "/")
+    try:
+        return str(abs_path.relative_to(repo_root)).replace("\\", "/")
+    except ValueError:
+        return None
 
 
 def build_call_index(
@@ -127,6 +134,8 @@ def build_call_graph_context(
         callers: list[tuple[str, str]] = []
         for ref in raw_refs:
             ref_file = uri_to_relpath(ref["uri"], repo_root)
+            if ref_file is None:
+                continue
             ref_row = ref["range"]["start"]["line"]
             ref_col = ref["range"]["start"]["character"]
             if (ref_file, ref_row, ref_col) == definition_loc:
@@ -154,9 +163,8 @@ def build_call_graph_context(
             queue.append((caller_file, caller_key, depth + 1))
 
         for d in callee_defs:
-            try:
-                d_file = uri_to_relpath(d["uri"], repo_root)
-            except ValueError:
+            d_file = uri_to_relpath(d["uri"], repo_root)
+            if d_file is None:
                 continue
             d_row = d["range"]["start"]["line"]
             d_col = d["range"]["start"]["character"]
