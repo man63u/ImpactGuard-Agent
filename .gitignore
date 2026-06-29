@@ -1,0 +1,15 @@
+# Cache and build artifacts
+.impactguard_cache/
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Test and coverage artifacts
+.coverage
+.pytest_cache/
+htmlcov/
+
+# Build artifacts
+*.egg-info/
+dist/
+build/

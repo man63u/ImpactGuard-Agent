@@ -1,6 +1,5 @@
 import textwrap
 from pathlib import Path
-import pytest
 from slicer.extractor import extract_function_inventory
 from slicer.folding import overlaps, apply_diff_folding
 from slicer.diff_utils import lines_to_byte_ranges

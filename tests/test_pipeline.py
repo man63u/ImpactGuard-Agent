@@ -1,6 +1,5 @@
 import textwrap
 from pathlib import Path
-import pytest
 from slicer.cache import load_or_parse
 from slicer.pipeline import build_inventory_for_files
 

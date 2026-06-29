@@ -1,6 +1,5 @@
 import textwrap
 from pathlib import Path
-import pytest
 from slicer.extractor import (
     walk_function_nodes,
     build_signature_stub,

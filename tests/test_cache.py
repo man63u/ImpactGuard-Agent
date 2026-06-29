@@ -1,6 +1,5 @@
 import json
 from pathlib import Path
-import pytest
 from slicer.cache import cache_key, load_or_parse, SLICER_VERSION
 
 
