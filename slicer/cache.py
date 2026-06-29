@@ -7,7 +7,7 @@ from pathlib import Path
 
 from .extractor import extract_function_inventory
 
-SLICER_VERSION = "v2"
+SLICER_VERSION = "v3"
 CACHE_DIR = Path(".impactguard_cache")
 
 

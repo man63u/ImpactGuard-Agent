@@ -31,7 +31,7 @@ def test_cache_invalidated_by_version_bump(tmp_path, monkeypatch):
     src = tmp_path / "sample.py"
     src.write_text("def hello(): pass\n", encoding="utf-8")
     import slicer.cache as cache_module
-    monkeypatch.setattr(cache_module, "SLICER_VERSION", "v3")
+    monkeypatch.setattr(cache_module, "SLICER_VERSION", "v4")
     key_v3 = cache_key(src)
     monkeypatch.setattr(cache_module, "SLICER_VERSION", SLICER_VERSION)
     key_original = cache_key(src)

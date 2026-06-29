@@ -111,11 +111,21 @@ def extract_function_inventory(file_path: Path) -> dict:
         for idx, node in enumerate(nodes):
             key = qual_name if single else f"{qual_name}#{idx}"
             role = _classify_property_role(node)
+            if node.type == 'decorated_definition':
+                inner = node.child_by_field_name('definition')
+                name_node = (
+                    inner.child_by_field_name('name')
+                    if inner is not None and inner.type == 'function_definition'
+                    else None
+                )
+            else:
+                name_node = node.child_by_field_name('name')
             functions[key] = {
                 'byte_range': [node.start_byte, node.end_byte],
                 'full_body': node.text.decode('utf-8'),
                 'stub': build_signature_stub(node),
                 'display_label': role if role else key,
+                'name_point': list(name_node.start_point) if name_node else None,
             }
 
     covered = sorted(

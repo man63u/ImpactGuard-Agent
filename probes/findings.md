@@ -161,6 +161,34 @@ call='obj.method(2)'
 
 ---
 
+---
+
+## 问题 4（补充）：uri_to_relpath 在 Windows Python 3.8.3 上的实测验证
+
+### 探测脚本
+
+`probes/probe4_uri_normalization.py`
+
+### 真实输出
+
+```
+原始uri: file:///c:/Users/17320/Desktop/ImpactGuard-Agent/probes/fixture_a/lib.py
+urlparse.path: '/c:/Users/17320/Desktop/ImpactGuard-Agent/probes/fixture_a/lib.py'
+url2pathname结果: 'C:\\Users\\17320\\Desktop\\ImpactGuard-Agent\\probes\\fixture_a\\lib.py'
+Path(raw_path): C:\Users\17320\Desktop\ImpactGuard-Agent\probes\fixture_a\lib.py
+repo_root: C:\Users\17320\Desktop\ImpactGuard-Agent\probes\fixture_a
+归一化后: 'lib.py'
+通过
+```
+
+### 结论
+
+`url2pathname` 在 Windows Python 3.8.3 上正确处理 `/c:/...` → `C:\...`（驱动器字母大写化），`Path.relative_to()` 可以直接使用。
+
+**实现时额外发现一个边界情况**：BFS 追 callee 定义时，如果 callee 定义在 repo_root 之外（stdlib 或第三方库，如 `flask/app.py`），`uri_to_relpath` 会抛 `ValueError`。在 `build_call_graph_context` 里 `for d in callee_defs` 循环中加 `try/except ValueError: continue` 即可——与任务书中"遇到跨边界路径直接跳过"的原则一致。
+
+---
+
 ## 问题汇总
 
 | # | 问题 | 结论 |
