@@ -1,7 +1,6 @@
 import json
 from pathlib import Path
 import pytest
-from unittest.mock import patch
 from slicer.cache import cache_key, load_or_parse, SLICER_VERSION
 
 
@@ -34,7 +33,6 @@ def test_cache_invalidated_by_version_bump(tmp_path, monkeypatch):
     src.write_text("def hello(): pass\n", encoding="utf-8")
     import slicer.cache as cache_module
     monkeypatch.setattr(cache_module, "SLICER_VERSION", "v3")
-    from slicer.cache import cache_key as ck
     key_v3 = cache_key(src)
     monkeypatch.setattr(cache_module, "SLICER_VERSION", SLICER_VERSION)
     key_original = cache_key(src)
